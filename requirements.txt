@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+httpx
+psycopg2-binary==2.9.9
+python-dotenv
+openai
+Pillow 
+requests
