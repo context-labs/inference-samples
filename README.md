@@ -1,5 +1,4 @@
-![Inference.net Logo](logo.png)
-✨ Navigate at inference.net
+<img src="logo.png" alt="Inference.net Logo" width="200">
 
 Example code and guides for accomplishing common tasks with the Inference.net API. To run these examples, you'll need an Inference.net account and associated API key (create a free account here). Set an environment variable called INFERENCE_API_KEY with your API key. Alternatively, in most IDEs such as Visual Studio Code, you can create an .env file at the root of your repo containing INFERENCE_API_KEY=<your API key>, which will be picked up by the notebooks.
 
