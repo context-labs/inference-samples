@@ -2,7 +2,7 @@
 
 **Automated Magnus Carlsen detection in images using AI-powered webhooks**
 
-![Magnus Carlsen](@magnus.png)
+![Magnus Carlsen](magnus.png)
 
 
 When working with LLMs, a common pattern is batch processing large amounts of data. We might want to classify text, images, or video. 
