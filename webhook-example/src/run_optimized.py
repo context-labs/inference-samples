@@ -144,7 +144,6 @@ async def main():
     )
     results = await processor.process_urls(urls)
     
-    print(f"\n🔮 Results will arrive via webhook in 24-72 hours.")
     return results
 
 if __name__ == "__main__":
