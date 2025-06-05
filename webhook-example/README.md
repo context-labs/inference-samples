@@ -103,7 +103,7 @@ The tricky part about webhooks is that inference.net needs to be able to reach y
 3. **Configure the webhook** in your [inference.net dashboard](https://inference.net):
    - Add your ngrok URL + `/webhook` (e.g., `https://abc123.ngrok.io/webhook`)
    - Copy the webhook ID and add it to your `.env` file as `INFERENCE_WEBHOOK_ID`
-   - Now if you test your webhook, you should get a Test Successful Response.
+   - Now if you test your webhook, you should get a Test Successful response.
 
 ![Webhook Dashboard](dashboard-webhook.png)
 
