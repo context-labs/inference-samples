@@ -1,7 +1,6 @@
 # Magnus Detection API
 
-**Automated Magnus Carlsen detection in images using AI-powered webhooks**
-
+**Bulk Magnus Carlsen detection Pipeline Using VLMs and Webhooks
 ![Magnus Carlsen](magnus.png)
 
 
