@@ -1,6 +1,7 @@
 # Magnus Detection Pipeline
 
 **Bulk Magnus Carlsen detection Pipeline Using VLMs and Webhooks**
+
 ![Magnus Carlsen](magnus.png)
 
 
