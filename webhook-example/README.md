@@ -1,148 +1,181 @@
 # Magnus Detection API
 
-A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks, structured outputs, and the slow API for cost-effective processing.
+🔍 **Automated Magnus Carlsen detection in images using AI-powered webhooks**
 
-## Prerequisites
+When working with LLMs, a common pattern is batch processing large amounts of data. We might want to classify text, images, or video. 
 
-- Python 3.9+
-- ngrok account (free tier is fine)
-- inference.net API key
-- Neon PostgreSQL database
+The problem is doing this as new data comes in while being able to handle our backlog of images to classify, for example.
 
-## Setup
+In this demo, we will be captioning thousands of video thumbnails by chess YouTuber Levy Rozman (also known as GothamChess), and for each one extracting whether it includes the GOAT of chess, Magnus Carlsen.
 
-### 0. Provision a Postgres Database
-You can use Neon to do this quickly and easily. 
+At Inference, we have a [Batch API](https://docs.inference.net/features/batch-api) for large workloads like this, but if new data is streaming in, a webhook pipeline can be far more sustainable.
 
-Once you provision your db, save your connection string for later.
+By using our `/slow` endpoint and webhooks, you can get all the discounts of the batch API but without worrying about funneling your data into large batch jobs.
 
-### 1. Clone and Setup Virtual Environment
+For this tutorial, I removed the slow endpoint, just so you can see the results faster. But if you want to use this example in production and save on costs, you can switch to the slow endpoint in `api.py` like this:
+
+```python
+base_url="https://api.inference.net/v1/slow"  # instead of https://api.inference.net/v1
+```
+
+With this example we will accomplish the following:
+1. Learn how to use webhooks to asynchronously process large datasets of images (but you can use this process for any async workload)
+2. Classify images with a VLM (Vision Language Model) by extracting structured data
+3. Prove, through our extracted dataset, whether or not chess YouTuber Levy Rozman is categorically obsessed with Magnus
+
+## What we're building
+
+We're going to build a simple FastAPI service that processes image URLs, sends them to inference.net for analysis, and stores the results in a database. The cool part is that it uses webhooks, so we can fire off thousands of requests and just wait for the results to come back.
+
+## Getting started
+
+First, grab the code and set up your environment:
 
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd inference-webhook
-
-# Create virtual environment
+cd inference-webhook/src
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install fastapi uvicorn httpx openai psycopg2-binary python-dotenv
 ```
 
-### 2. Install Dependencies
+You'll need a PostgreSQL database running. Create a `.env` file:
 
-```bash
-pip install -r requirements.txt
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/magnus_db
+INFERENCE_API_KEY=your_inference_net_api_key
+INFERENCE_WEBHOOK_ID=your_webhook_id_from_inference_dashboard
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the `src/` directory:
+Then initialize your database:
 
 ```bash
-cd src
-cat > .env << EOF
-DATABASE_URL=your_database_url_here
-INFERENCE_API_KEY=your_inference_api_key_here
-INFERENCE_WEBHOOK_ID=your_webhook_id_here  # You'll get this after step 5
-EOF
-```
-
-### 4. Initialize Database
-
-```bash
-cd src
 python init_db.py
 ```
-You should see: 
-```table 'images' created successfully```
 
-### 5. Set Up Webhook with inference.net
+## Running it locally with webhooks
 
-1. Start ngrok:
-   ```bash
-   ngrok http 8000
-   ```
-
-2. Copy your ngrok URL (e.g., `https://0bf3-158-51-80-215.ngrok-free.app`)
-
-3. Go to [inference.net dashboard](https://dashboard.inference.net)
-
-4. Navigate to **https://inference.net/dashboard/webhooks**
-
-5. Click **Create Webhook** and configure:
-   - **Name**: Magnus Detection Webhook (or any descriptive name)
-   - **URL**: `<your-ngrok-url>/webhook` (e.g., `https://0bf3-158-51-80-215.ngrok-free.app/webhook`)
-   - Save the webhook
-
-6. Copy the webhook ID (e.g., `AhALzdz8S`) and update your `.env` file with it
-
-### 6. Start the API
+The tricky part about webhooks is that inference.net needs to be able to reach your local server. That's where [ngrok](https://ngrok.com) comes in. I've included a `start.sh` script that handles all of this:
 
 ```bash
-# In the src directory
-uvicorn api:app --reload
+./start.sh
 ```
 
-### 7. Process URLs
+This will:
+- Set up your database if it doesn't exist
+- Start an ngrok tunnel
+- Show you the webhook URL to configure in inference.net
+- Start the FastAPI server
 
-In a new terminal (with virtual environment activated):
+Copy the webhook URL it shows you and add `/webhook` to the end, then configure it in your [inference.net dashboard](https://inference.net).
+
+## How to use it
+
+### Processing a single image
+
+Want to check if Magnus is in a specific thumbnail? Just send a POST request:
 
 ```bash
-cd src
-python run.py test_urls.json  # Processes the 3 test URLs
-# Or process the full dataset:
-python run.py ../gothamchess/urls.json
+curl -X POST "http://localhost:8000/submit_url" \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://i.ytimg.com/vi/8HZ-P7Y44ms/hq720.jpg"}'
 ```
 
-## How It Works
+### Batch processing (the fun part)
 
-1. **Submit URL**: The API creates a database entry and downloads the image
-2. **Send to inference.net**: Uses the slow API (`/v1/slow`) with structured outputs to get:
-   - `has_magnus` (boolean): Whether Magnus Carlsen is in the image
-   - `caption` (string): Description of what's in the image
-3. **Webhook Response**: Results arrive in 24-72 hours via webhook
-4. **Database Update**: The webhook handler updates the database with results
+Here's where it gets interesting. I've included two datasets in `src/gotham_urls/`:
+- `test_urls.json` - Just a handful of URLs for testing
+- `urls.json` - Over 1,700 GothamChess thumbnails
 
-## API Endpoints
-
-- `POST /submit_url` - Submit an image URL for processing
-  ```json
-  {
-    "url": "https://example.com/image.jpg"
-  }
-  ```
-
-- `POST /webhook` - Receives results from inference.net (called automatically)
-
-- `GET /` - Health check
-
-## Testing
-
-Test the API with a single URL:
+To process them:
 
 ```bash
-python test_api.py
+# Test with a few URLs first
+python run_optimized.py gotham_urls/test_urls.json
+
+# Process the first 100 from the full dataset
+python run_optimized.py gotham_urls/urls.json 100
+
+# Go wild (but watch out for rate limits)
+python run_optimized.py gotham_urls/urls.json 1000 5  # 1000 URLs, 5 concurrent
 ```
 
-## Project Structure
+A word of warning: YouTube will rate limit you if you try to download too many thumbnails too fast. The default settings are conservative (3 concurrent requests) for a reason. The bottleneck here is YouTube, not Inference - we're processing an image every three seconds, but if we had an endpoint without YouTube's rate limiting, we could do this example dataset hundreds of times faster.
+
+If you had the images stored locally, you could process hundreds of thousands with the slow endpoint in minutes. But for this demo, we're working with URLs.
+
+## What's happening under the hood
+
+The flow is pretty straightforward:
+
+1. You submit a URL
+2. The API downloads the image and converts it to base64
+3. It sends the image to inference.net with your webhook configured
+4. inference.net processes it with Gemma 3 27B (a vision-language model)
+5. The results come back via webhook
+6. We store everything in PostgreSQL
+
+The database schema is simple:
+
+```sql
+CREATE TABLE images (
+    url TEXT PRIMARY KEY,
+    has_magnus BOOLEAN,
+    caption TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP
+);
+```
+
+## The payoff
+
+After running this on the full dataset, you'll have a database with every GothamChess thumbnail classified. You can then run queries like:
+
+```sql
+-- How obsessed is Levy with Magnus?
+SELECT 
+    COUNT(*) FILTER (WHERE has_magnus = true) as magnus_count,
+    COUNT(*) as total,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE has_magnus = true) / COUNT(*), 2) as magnus_percentage
+FROM images 
+WHERE status = 'completed';
+
+-- Show me all the Magnus thumbnails
+SELECT url, caption 
+FROM images 
+WHERE has_magnus = true 
+ORDER BY created_at DESC;
+```
+
+## Tips and tricks
+
+**Rate limiting**: If you're getting 429 errors, slow down. Use fewer concurrent requests or add delays between batches.
+
+**Debugging**: The API prints what it's doing. If webhooks aren't working, check:
+- Is ngrok running?
+- Did you configure the webhook URL in inference.net?
+- Are the webhook IDs matching?
+
+**Performance**: With the default settings, you'll process about 2-3 images per second. That's intentional to avoid YouTube's rate limits. If you need to go faster and have the images locally, definitely switch to the slow endpoint - it's way cheaper and can handle massive batches.
+
+## Files included
 
 ```
-inference-webhook/
-├── .venv/              # Virtual environment
-├── src/                # Source code
-│   ├── api.py          # Main FastAPI application
-│   ├── init_db.py      # Database initialization
-│   ├── run.py          # Batch URL processor
-│   ├── test_api.py     # API tester
-│   ├── start.sh        # Helper script
-│   └── test_urls.json  # Test URLs (3 samples)
-├── gothamchess/        # Full dataset
-│   └── urls.json       # All URLs to process
-└── requirements.txt    # Python dependencies
+src/
+├── api.py                 # The FastAPI server
+├── run_optimized.py       # Batch processor with rate limiting
+├── init_db.py            # Sets up your database
+├── start.sh              # One-command local setup
+├── test_webhook.py       # Test your webhook locally
+├── sample_urls.json      # A few URLs to test with
+└── gotham_urls/          
+    ├── test_urls.json    # Small test set
+    └── urls.json         # The full dataset (1,700+ thumbnails)
 ```
 
-## Notes
+## Final thoughts
 
-- The slow API takes 24-72 hours to process requests but is more cost-effective
-- Make sure to keep ngrok running while waiting for webhook responses
-- The database stores all results permanently for future reference 
+This is a simple example but the pattern is powerful. You can use this same webhook architecture for any async processing task - transcribing videos, analyzing documents, whatever. The key insight is that webhooks let you decouple the submission from the processing, which means you can handle streaming data without complex queuing infrastructure.
+
+And yes, after analyzing 1,700+ thumbnails, I can confirm that Levy is indeed obsessed with Magnus. But you probably already knew that.

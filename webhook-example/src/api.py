@@ -21,7 +21,7 @@ else:
 
 # Initialize OpenAI client for inference.net slow API
 client = AsyncOpenAI(
-    base_url="https://api.inference.net/v1",
+    base_url="https://api.inference.net/v1", # switch to https://api.inference.net/v1/slow for the slow endpoint
     api_key=os.getenv("INFERENCE_API_KEY")
 )
 
@@ -186,7 +186,12 @@ async def webhook(request: Request):
     """
     # Get webhook data
     data = await request.json()
-    
+
+    if data.get("event") == "webhook.test":
+        print(f"✅ Received test webhook: {json.dumps(data, indent=2)}")
+        return {"status": "ok", "message": "Test webhook received"}
+    print(f"✅ Received webhook: {json.dumps(data, indent=2)}")
+
     # Extract required fields
     image_id = data["data"]["request"]["metadata"]["image_id"]
     content_str = data["data"]["response"]["choices"][0]["message"]["content"]
