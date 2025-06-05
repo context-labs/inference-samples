@@ -33,6 +33,8 @@ We're going to build a simple FastAPI service that processes image URLs, sends t
 In this example, we already have the cover images. But we can imagine we are working with video and need to extract images/covers to classify. In that case, our pipeline will look more like this:
 ![Pipeline](diagram.png)
 
+For us, everything after the second step is exactly the same. We'll be using a Neon Postgres database to keep our image metadata and results, but you can easily switch this to use the database of your choice.
+
 ## Getting started
 
 First, grab the code and set up your environment:
