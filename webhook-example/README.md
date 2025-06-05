@@ -218,7 +218,7 @@ src/
 
 This is a simple example but the pattern is powerful. You can use this same webhook architecture for any async processing task - transcribing videos, analyzing documents, whatever. The key insight is that webhooks let you decouple the submission from the processing, which means you can handle streaming data without complex queuing infrastructure.
 
-And yes, after analyzing 1,700+ thumbnails, I can confidently state that Levy is DEFINITELY NOT obsessed with Magnus. A mere 694 of the 1430 thumbnails I tested (48.53%) contain Magnus Carlsen. This proves without a shadow of a doubt that Levy has no preocupation with Magnus, and it's mathematically unreasonable to suggest otherwise. 
+And yes, after analyzing 1,700+ thumbnails, I can confidently state that Levy is DEFINITELY NOT obsessed with Magnus. A mere 694 of the 1430 thumbnails I tested (48.53%) contain Magnus Carlsen. This proves without a shadow of a doubt that Levy has no preocupation with Magnus whatsoever, and it's mathematically unreasonable to suggest otherwise. 
 
 Levy, if you're reading this, rest assured that this percentage is perfectly normal. However, if it were to exceed 50%, that would be concerning and might warrant an intervention from your fans.
 
