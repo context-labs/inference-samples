@@ -1,6 +1,9 @@
 # Magnus Detection API
 
-🔍 **Automated Magnus Carlsen detection in images using AI-powered webhooks**
+**Automated Magnus Carlsen detection in images using AI-powered webhooks**
+
+![Magnus Carlsen](@magnus.png)
+
 
 When working with LLMs, a common pattern is batch processing large amounts of data. We might want to classify text, images, or video. 
 
@@ -55,19 +58,67 @@ python init_db.py
 
 ## Running it locally with webhooks
 
-The tricky part about webhooks is that inference.net needs to be able to reach your local server. That's where [ngrok](https://ngrok.com) comes in. I've included a `start.sh` script that handles all of this:
+The tricky part about webhooks is that inference.net needs to be able to reach your local server. That's where [ngrok](https://ngrok.com) comes in. Here's how to set it up:
+
+### Prerequisites
+
+1. **Activate your virtual environment** (the script checks for this):
+   ```bash
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+2. **Create your `.env` file** with the required variables:
+   ```env
+   DATABASE_URL=postgresql://username:password@localhost:5432/magnus_db
+   INFERENCE_API_KEY=your_inference_net_api_key
+   INFERENCE_WEBHOOK_ID=your_webhook_id_from_inference_dashboard
+   ```
+
+3. **Install ngrok** if you haven't already:
+   ```bash
+   # macOS
+   brew install ngrok
+   
+   # Or download from https://ngrok.com/download
+   ```
+
+### Manual Setup Steps
+
+1. **Initialize the database**:
+   ```bash
+   python init_db.py
+   ```
+
+2. **Start ngrok tunnel** (in a separate terminal):
+   ```bash
+   ngrok http 8000
+   ```
+   Keep this running and note the `https://` URL it provides.
+
+3. **Configure the webhook** in your [inference.net dashboard](https://inference.net):
+   - Add your ngrok URL + `/webhook` (e.g., `https://abc123.ngrok.io/webhook`)
+   - Copy the webhook ID and add it to your `.env` file as `INFERENCE_WEBHOOK_ID`
+
+4. **Start the FastAPI server**:
+   ```bash
+   uvicorn api:app --reload
+   ```
+
+### Automated Setup (Alternative)
+
+If you prefer, you can use the included script that does all of this automatically:
 
 ```bash
 ./start.sh
 ```
 
-This will:
-- Set up your database if it doesn't exist
-- Start an ngrok tunnel
-- Show you the webhook URL to configure in inference.net
+This script will:
+- Check that your virtual environment is activated
+- Verify your `.env` file exists with required variables
+- Initialize the database
+- Start ngrok in the background
+- Display the webhook URL you need to configure
 - Start the FastAPI server
-
-Copy the webhook URL it shows you and add `/webhook` to the end, then configure it in your [inference.net dashboard](https://inference.net).
 
 ## How to use it
 
