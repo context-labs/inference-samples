@@ -5,17 +5,17 @@
 ![Magnus Carlsen](magnus.png)
 
 
-When working with LLMs, a common pattern is batch processing large amounts of data. We might want to classify text, images, or video. 
+A common LLM usage pattern is batch processing large amounts of data. We might want to classify text, images, or video. 
 
 The problem is doing this as new data comes in while being able to handle our backlog of images to classify, for example.
 
-In this demo, we will be captioning thousands of video thumbnails by chess YouTuber Levy Rozman (also known as GothamChess), and for each one extracting whether it includes the GOAT of chess, Magnus Carlsen.
+We will be captioning thousands of video thumbnails by chess YouTuber Levy Rozman (also known as GothamChess), and for each one extracting whether it includes the GOAT of chess, Magnus Carlsen.
 
-At Inference, we have a [Batch API](https://docs.inference.net/features/batch-api) for large workloads like this, but if new data is streaming in, a webhook pipeline can be far more sustainable.
+Inference.net has a [Batch API](https://docs.inference.net/features/batch-api) for large workloads like this, but if new data is streaming in, a webhook pipeline can be far more sustainable.
 
-By using our `/slow` endpoint and webhooks, you can get all the discounts of the batch API but without worrying about funneling your data into large batch jobs. Every request will process in 24-72 hours (whenever it's cheapest for Inference) and then hit your webhook. Just send a large number of requests and forget! We then levy the cost saving onto you.
+By using our `/slow` endpoint and webhooks, you can send millions of requests per day without worrying about rate limits. The requests will process in 24-72 hours (whenever it's cheapest for Inference) and then hit your webhook. Just fire off as many requests as you want - we'll handle them all.
 
-For this tutorial, I removed the slow endpoint, just so you can see the results faster. But if you want to use this example in production and save on costs, you can switch to the slow endpoint in `api.py` like this:
+For this tutorial I removed the slow endpoint just so you can see the results faster. But if you want to use this example in production and save on costs, you can switch to the slow endpoint in `api.py` like this:
 
 ```python
 base_url="https://api.inference.net/v1/slow"  # instead of https://api.inference.net/v1
@@ -30,10 +30,10 @@ With this example we will accomplish the following:
 
 We're going to build a simple FastAPI service that processes image URLs, sends them to inference.net for analysis, and stores the results in a database. The cool part is that it uses webhooks, so we can fire off thousands of requests and just wait for the results to come back.
 
-In this example, we already have the cover images. But we can imagine we are working with video and need to extract images/covers to classify. In that case, our pipeline will look more like this:
+In this example we already have the cover images. But we can imagine we are working with video and need to extract images/covers to classify. In that case, our pipeline will look more like this:
 ![Pipeline](diagram.png)
 
-For us, everything after the second step is exactly the same. We'll be using a Neon Postgres database to keep our image metadata and results, but you can easily switch this to use the database of your choice.
+In our case everything after the second step is exactly the same. We'll be using a Neon Postgres database to keep our image metadata and results, but you can easily switch this to use the database of your choice.
 
 ## Getting started
 
