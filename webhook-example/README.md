@@ -174,6 +174,7 @@ CREATE TABLE images (
 ## The payoff
 
 After running this on the full dataset, you'll have a database with every GothamChess thumbnail classified. The database looks like this:
+
 ![Database](magnus-db.png)
 
 You can then run queries like:
