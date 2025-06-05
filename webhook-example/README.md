@@ -13,7 +13,7 @@ In this demo, we will be captioning thousands of video thumbnails by chess YouTu
 
 At Inference, we have a [Batch API](https://docs.inference.net/features/batch-api) for large workloads like this, but if new data is streaming in, a webhook pipeline can be far more sustainable.
 
-By using our `/slow` endpoint and webhooks, you can get all the discounts of the batch API but without worrying about funneling your data into large batch jobs.
+By using our `/slow` endpoint and webhooks, you can get all the discounts of the batch API but without worrying about funneling your data into large batch jobs. Every request will process in 24-72 hours (whenever it's cheapest for Inference) and then hit your webhook. Just send a large number of requests and forget! We then levy the cost saving onto you.
 
 For this tutorial, I removed the slow endpoint, just so you can see the results faster. But if you want to use this example in production and save on costs, you can switch to the slow endpoint in `api.py` like this:
 
@@ -103,22 +103,6 @@ The tricky part about webhooks is that inference.net needs to be able to reach y
    ```bash
    uvicorn api:app --reload
    ```
-
-### Automated Setup (Alternative)
-
-If you prefer, you can use the included script that does all of this automatically:
-
-```bash
-./start.sh
-```
-
-This script will:
-- Check that your virtual environment is activated
-- Verify your `.env` file exists with required variables
-- Initialize the database
-- Start ngrok in the background
-- Display the webhook URL you need to configure
-- Start the FastAPI server
 
 ## How to use it
 
@@ -214,12 +198,10 @@ ORDER BY created_at DESC;
 
 ```
 src/
-├── api.py                 # The FastAPI server
-├── run_optimized.py       # Batch processor with rate limiting
+├── api.py                # The FastAPI server
+├── run_optimized.py      # Batch processor with rate limiting
 ├── init_db.py            # Sets up your database
-├── start.sh              # One-command local setup
 ├── test_webhook.py       # Test your webhook locally
-├── sample_urls.json      # A few URLs to test with
 └── gotham_urls/          
     ├── test_urls.json    # Small test set
     └── urls.json         # The full dataset (1,700+ thumbnails)
