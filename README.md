@@ -34,7 +34,7 @@ Most examples are written in Python, but the concepts can be applied to any lang
 ### Featured Examples
 
 - [Webhook Example](examples/webhook-classification/README.md) - A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks
-- [LLM Translation](examples/llm-translation/) - A guide to LLM translation at scale
+- [LLM Translation](examples/llm-translation/llm-translation.ipynb) - A guide to LLM translation at scale
 
 - [Batch Processing](https://docs.inference.net/features/batch-api) - Process multiple asynchronous requests in a single API call
 - [Function Calling](https://docs.inference.net/features/function-calling) - Give your models tools
