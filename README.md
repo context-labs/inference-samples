@@ -33,7 +33,7 @@ Most examples are written in Python, but the concepts can be applied to any lang
 
 ### Featured Examples
 
-- [Webhook Example](webhook-example/README.md) - A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks
+- [Webhook Example](examples/webhook-classification/README.md) - A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks
 - [Batch Processing](https://docs.inference.net/features/batch-api) - Process multiple asynchronous requests in a single API call
 - [Function Calling](https://docs.inference.net/features/function-calling) - Give your models tools
 - [Structured Outputs](https://docs.inference.net/features/structured-outputs) - Have your models output structured outputs

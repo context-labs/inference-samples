@@ -1,0 +1,300 @@
+# LLM Translation at Scale with Inference.net Batch API
+
+LLMs are remarkably good at translation. It doesn't take a particularly strong LLM to perform most translations: a small 8-30B parameter model is more than strong enough for translating between most languages. The OpenRouter leaderboard shows the most popular models used for translation are tiny and fast--which allow you to translate very large amounts of text remarkably cheaply.
+
+![image](https://hackmd.io/_uploads/SyPgYY1Qlg.png)
+
+For most translation tasks, the specific cheap model/provider you use isn't particularly important. But some translation jobs scale to the hundreds of millions to tens of trillions of tokens, and at that point price and rate limits become a factor. 
+
+This is where Inference excels: we serve models extremely cheaply and have no rate limits for time-insensitive batch jobs like this.
+
+Here's how you can get started with LLM translation:
+
+## Setting Up Your Translation Pipeline
+
+The beauty of using Inference.net is that it's compatible with the OpenAI SDK, so you can get started in seconds. Just point the client at our batch endpoint:
+
+```python
+!pip install openai -q
+
+from openai import OpenAI
+import os
+
+client = OpenAI(
+    base_url="https://batch.inference.net/v1",
+    api_key=os.getenv("INFERENCE_API_KEY"),
+)
+```
+
+## Your First Translation Batch
+
+Let's say you need to translate a batch of product descriptions. With the Batch API, you prepare all your requests in a JSONL file where each line is a complete translation request:
+
+```python
+import json
+
+# Some product descriptions to translate
+documents = [
+    "High-quality wireless headphones with noise cancellation",
+    "Ergonomic office chair with lumbar support", 
+    "Smart home thermostat with energy-saving features",
+    "Professional camera with 4K video recording",
+    "Portable power bank with fast charging"
+]
+
+# Create the batch file
+with open("translation_batch.jsonl", "w") as f:
+    for idx, doc in enumerate(documents):
+        request = {
+            "custom_id": f"translation-{idx}",
+            "method": "POST",
+            "url": "/v1/chat/completions",
+            "body": {
+                "model": "meta-llama/llama-3.2-1b-instruct/fp-8",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a professional translator. Translate the following English text to Spanish, preserving the tone and meaning."
+                    },
+                    {
+                        "role": "user",
+                        "content": doc
+                    }
+                ],
+                "max_tokens": 100,
+                "temperature": 0.3  # Lower temperature for consistent translations
+            }
+        }
+        f.write(json.dumps(request) + "\n")
+
+print(f"Created batch file with {len(documents)} translation requests")
+```
+
+The key here is that each request is self-contained. You specify the model, the system prompt (your translation instructions), and the text to translate. Setting temperature to 0.3 gives you consistent, professional translations without too much creativity.
+
+## Launching the Job
+
+Once your batch file is ready, it's a two-step process: upload the file, then create the batch job.
+
+```python
+# Upload the file
+with open("translation_batch.jsonl", "rb") as f:
+    batch_file = client.files.create(
+        file=f,
+        purpose="batch"
+    )
+
+# Create the batch job
+batch = client.batches.create(
+    input_file_id=batch_file.id,
+    endpoint="/v1/chat/completions",
+    completion_window="24h",
+    metadata={
+        "job_type": "translation",
+        "language_pair": "en-es",
+        "document_count": str(len(documents))
+    }
+)
+
+print(f"Batch job started: {batch.id}")
+```
+
+The batch starts processing immediately. For small jobs like this, it'll complete in seconds. For massive jobs with millions of tokens, it might take a few hours--but that's still faster than hitting rate limits with synchronous APIs.
+
+## Getting Your Translations
+
+Once the batch completes, you download the results and parse them:
+
+```python
+import time
+
+# Wait for completion (in production, use webhooks instead)
+while True:
+    batch_status = client.batches.retrieve(batch.id)
+    if batch_status.status == "completed":
+        break
+    print(f"Status: {batch_status.status}")
+    time.sleep(2)
+
+# Download and parse results
+results_content = client.files.content(batch_status.output_file_id)
+translations = {}
+
+for line in results_content.text.strip().split('\n'):
+    result = json.loads(line)
+    custom_id = result['custom_id']
+    translation = result['response']['body']['choices'][0]['message']['content']
+    translations[custom_id] = translation
+
+# Show the translations
+for idx, original in enumerate(documents):
+    print(f"\nOriginal: {original}")
+    print(f"Spanish: {translations[f'translation-{idx}']}")
+```
+
+The results come back as JSONL too, with each line containing the custom_id you specified and the translation. This makes it trivial to match translations back to your original documents.
+
+## Scaling to Millions of Documents
+
+The real power comes when you scale up. Let's say you're translating an entire e-commerce catalog with 100,000 products into 5 languages. That's 500,000 translations.
+
+```python
+# Simulating a large catalog
+languages = ["es", "fr", "de", "ja", "zh"]
+products_per_language = 100000
+total_requests = len(languages) * products_per_language
+
+# Estimate costs (using Llama 3.2 1B)
+avg_tokens_per_request = 150  # ~50 input, ~100 output
+total_tokens = total_requests * avg_tokens_per_request
+cost_per_million_tokens = 0.10  # Check current pricing
+total_cost = (total_tokens / 1_000_000) * cost_per_million_tokens
+
+print(f"Translation job size:")
+print(f"  Languages: {len(languages)}")
+print(f"  Products: {products_per_language:,}")
+print(f"  Total requests: {total_requests:,}")
+print(f"  Estimated tokens: {total_tokens:,}")
+print(f"  Estimated cost: ${total_cost:.2f}")
+print(f"  Cost per translation: ${total_cost/total_requests:.4f}")
+```
+
+At these scales, traditional translation APIs would either reject your requests or charge enterprise rates. With Inference.net's Batch API, you just upload larger JSONL files and wait. No rate limits, no throttling, just results.
+
+## Production Tips
+
+After running translation jobs processing billions of tokens, here's what I've learned:
+
+**1. Use the smallest model that works.** Llama 3.2 1B is fantastic for most translation tasks. Only bump up to 3B or 8B if you need specialized terminology or literary quality.
+
+**2. Add glossaries to your system prompt.** If you have specific terms that must be translated consistently:
+
+```python
+system_prompt = """You are a professional translator. Translate to Spanish.
+
+Use these specific translations:
+- "fast charging" → "carga rápida"
+- "noise cancellation" → "cancelación de ruido"
+- "wireless" → "inalámbrico"
+
+Preserve all technical terms and product names."""
+```
+
+**3. Use webhooks for large jobs.** Instead of polling, set up a webhook:
+
+```python
+batch = client.batches.create(
+    input_file_id=batch_file.id,
+    endpoint="/v1/chat/completions",
+    completion_window="24h",
+    extra_body={
+        "webhook_url": "https://your-app.com/translation-complete"
+    }
+)
+```
+
+**4. Process results streaming.** For huge result files, process line by line:
+
+```python
+def process_translation_results(output_file_id):
+    results = client.files.content(output_file_id)
+    
+    for line in results.text.strip().split('\n'):
+        result = json.loads(line)
+        # Process each translation immediately
+        save_translation_to_database(
+            doc_id=result['custom_id'],
+            translation=result['response']['body']['choices'][0]['message']['content']
+        )
+```
+
+**5. Validate critical translations.** For important content, run a second pass with a different model or temperature to catch issues:
+
+```python
+# First pass: fast translation with 1B model
+primary_translation = translate_with_model("meta-llama/llama-3.2-1b-instruct/fp-8")
+
+# Second pass: validate important products with 3B model
+if product.is_featured or product.price > 1000:
+    validation = translate_with_model("meta-llama/llama-3.2-3b-instruct/fp-8")
+    if similarity(primary_translation, validation) < 0.9:
+        flag_for_human_review()
+```
+
+## Real-World Example: Localizing Documentation
+
+Here's a complete script I use for translating documentation sites:
+
+```python
+import glob
+from pathlib import Path
+
+def translate_documentation(source_dir, target_languages):
+    # Find all markdown files
+    md_files = glob.glob(f"{source_dir}/**/*.md", recursive=True)
+    
+    # Prepare batch requests
+    requests = []
+    for file_path in md_files:
+        content = Path(file_path).read_text()
+        
+        for lang in target_languages:
+            request = {
+                "custom_id": f"{file_path}|{lang}",
+                "method": "POST",
+                "url": "/v1/chat/completions",
+                "body": {
+                    "model": "meta-llama/llama-3.2-3b-instruct/fp-8",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": f"""Translate this technical documentation to {lang}.
+                            
+Rules:
+- Preserve ALL markdown formatting
+- Keep code blocks in English
+- Preserve all links and anchors
+- Maintain heading hierarchy
+- Keep technical terms that shouldn't be translated"""
+                        },
+                        {
+                            "role": "user",
+                            "content": content
+                        }
+                    ],
+                    "max_tokens": len(content) * 2
+                }
+            }
+            requests.append(request)
+    
+    # Write batch file
+    batch_file = f"docs_translation_{int(time.time())}.jsonl"
+    with open(batch_file, "w") as f:
+        for req in requests:
+            f.write(json.dumps(req) + "\n")
+    
+    print(f"Translating {len(md_files)} files into {len(target_languages)} languages")
+    print(f"Total requests: {len(requests)}")
+    
+    return batch_file
+
+# Usage
+batch_file = translate_documentation(
+    source_dir="docs/",
+    target_languages=["es", "fr", "de", "ja", "pt"]
+)
+```
+
+## The Bottom Line
+
+LLM translation with batch processing is a superpower for any company dealing with multilingual content. You get:
+
+- **No rate limits** - Process millions of documents overnight
+- **Bulk pricing** - Typically 50% cheaper than real-time APIs  
+- **Better quality** - LLMs understand context better than traditional MT
+- **Format preservation** - Markdown, HTML, JSON stay intact
+- **Easy customization** - Just update your system prompt
+
+Whether you're localizing an e-commerce site, translating user reviews, or making documentation accessible globally, this approach scales from hundreds to billions of tokens without breaking a sweat.
+
+The best part? You can start small with a few dozen translations to test quality, then scale up to millions with the exact same code. That's the beauty of batch processing--it just works.
