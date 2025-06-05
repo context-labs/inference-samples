@@ -209,7 +209,6 @@ src/
 ├── api.py                # The FastAPI server
 ├── run_optimized.py      # Batch processor with rate limiting
 ├── init_db.py            # Sets up your database
-├── test_webhook.py       # Test your webhook locally
 └── gotham_urls/          
     ├── test_urls.json    # Small test set
     └── urls.json         # The full dataset (1,700+ thumbnails)
