@@ -223,5 +223,5 @@ And yes, after analyzing 1,700+ thumbnails, I can confidently state that Levy is
 
 Levy, if you are reading this, this percentage is totally normal. Over 50%, however, would be deeply worrying and your fans would need to perform some sort of intervention.
 
-[Results](magnus-results.png)
+![Results](magnus-results.png)
 
