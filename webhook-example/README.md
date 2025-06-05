@@ -221,7 +221,7 @@ This is a simple example but the pattern is powerful. You can use this same webh
 
 And yes, after analyzing 1,700+ thumbnails, I can confidently state that Levy is DEFINITELY NOT obsessed with Magnus. A mere 694 of the 1430 thumbnails I tested (48.53%) contain Magnus Carlsen. This proves without a shadow of a doubt that Levy has no preocupation with Magnus, and it's mathematically unreasonable to suggest otherwise. 
 
-Levy, if you are reading this, this percentage is totally normal. Over 50%, however, would be deeply worrying and your fans would need to perform some sort of intervention.
+Levy, if you're reading this, rest assured that this percentage is perfectly normal. However, if it were to exceed 50%, that would be concerning and might warrant an intervention from your fans.
 
 ![Results](magnus-results.png)
 
