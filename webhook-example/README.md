@@ -30,6 +30,9 @@ With this example we will accomplish the following:
 
 We're going to build a simple FastAPI service that processes image URLs, sends them to inference.net for analysis, and stores the results in a database. The cool part is that it uses webhooks, so we can fire off thousands of requests and just wait for the results to come back.
 
+Our pipeline will look like this:
+![Pipeline](diagram.png)
+
 ## Getting started
 
 First, grab the code and set up your environment:
