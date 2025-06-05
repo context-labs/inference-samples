@@ -34,10 +34,11 @@ Most examples are written in Python, but the concepts can be applied to any lang
 ### Featured Examples
 
 - [Webhook Example](webhook-example/README.md) - A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks
-- [Batch Processing](https://docs.inference.net/batch-api) - Process multiple asynchronous requests in a single API call
-- [Function Calling](https://docs.inference.net/function-calling) - Use structured outputs with your models
-- [Vision](https://docs.inference.net/vision) - Process images with AI models
-- [Background Inference](https://docs.inference.net/background-inference) - Use the asynchronous API for cost-effective processing
+- [Batch Processing](https://docs.inference.net/features/batch-api) - Process multiple asynchronous requests in a single API call
+- [Function Calling](https://docs.inference.net/features/function-calling) - Give your models tools
+- [Structured Outputs](https://docs.inference.net/features/structured-outputs) - Have your models output structured outputs
+- [Vision](https://docs.inference.net/features/vision) - Process images with AI models
+- [Background Inference](https://docs.inference.net/features/asynchronous-inference/overview) - Use the asynchronous API for cost-effective processing
 
 ## License
 
