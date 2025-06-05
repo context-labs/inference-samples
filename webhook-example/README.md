@@ -173,7 +173,10 @@ CREATE TABLE images (
 
 ## The payoff
 
-After running this on the full dataset, you'll have a database with every GothamChess thumbnail classified. You can then run queries like:
+After running this on the full dataset, you'll have a database with every GothamChess thumbnail classified. The database looks like this:
+![Database](magnus-db.png)
+
+You can then run queries like:
 
 ```sql
 -- How obsessed is Levy with Magnus?
