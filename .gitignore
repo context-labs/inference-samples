@@ -52,3 +52,5 @@ video_scraped/*
 inference_webhook.db
 *.db-journal
 .uv/
+
+.jsonl/
