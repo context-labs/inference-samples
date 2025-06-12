@@ -54,3 +54,11 @@ inference_webhook.db
 .uv/
 
 .jsonl/
+.jsonl
+*.jsonl
+
+.mp4
+*.mp4
+
+# Keyframe files for video captioning example
+keyframe_*
