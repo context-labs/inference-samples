@@ -42,6 +42,7 @@ Most examples are written in Python, but the concepts can be applied to any lang
 - [Structured Outputs](https://docs.inference.net/features/structured-outputs) - Have your models output structured outputs
 - [Vision](https://docs.inference.net/features/vision) - Process images with AI models
 - [Background Inference](https://docs.inference.net/features/asynchronous-inference/overview) - Use the asynchronous API for cost-effective processing
+- [ClipTagger-12B Semantic Video Search](examples/cliptagger-search/cliptagger-search.ipynb) - Semantic search and filtering over video frames using ClipTagger-12B and ChromaDB
 
 ## License
 
