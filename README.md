@@ -33,16 +33,22 @@ Most examples are written in Python, but the concepts can be applied to any lang
 
 ### Featured Examples
 
-- [Webhook Example](examples/webhook-classification/README.md) - A minimalistic API that uses inference.net to detect Magnus Carlsen in images using webhooks
-- [LLM Translation](examples/llm-translation/llm-translation.ipynb) - A guide to LLM translation at scale
+#### Example Notebooks
+
+- [Webhook Example](examples/webhook-classification/README.md) - A minimalistic API that uses Inference.net to detect Magnus Carlsen in images using webhooks
 - [RAG with ChromaDB, Chonkie, and Paul Graham's Essays](examples/RAG-chroma/RAG-chroma.ipynb) - End-to-end Retrieval-Augmented Generation pipeline using Inference.net, ChromaDB, and Chonkie
+- [ClipTagger-12B Semantic Video Search With Chroma](examples/cliptagger-video-search/cliptagger-video-search.ipynb) - Semantic search and filtering over video frames using ClipTagger-12B and ChromaDB
+- [Video Captioning with VLMs: Generic Model Example](examples/video-captioning/video-captioning.ipynb) <a name="video-captioning.ipynb"></a>
+- [Sentiment Analysis with Structured Outputs](examples/sentiment-analysis/sentiment-analysis.ipynb) <a name="sentiment-analysis.ipynb"></a>
+
+
+#### API Features & Resources
 
 - [Batch Processing](https://docs.inference.net/features/batch-api) - Process multiple asynchronous requests in a single API call
 - [Function Calling](https://docs.inference.net/features/function-calling) - Give your models tools
 - [Structured Outputs](https://docs.inference.net/features/structured-outputs) - Have your models output structured outputs
 - [Vision](https://docs.inference.net/features/vision) - Process images with AI models
 - [Background Inference](https://docs.inference.net/features/asynchronous-inference/overview) - Use the asynchronous API for cost-effective processing
-- [ClipTagger-12B Semantic Video Search](examples/cliptagger-video-search/cliptagger-video-search.ipynb) - Semantic search and filtering over video frames using ClipTagger-12B and ChromaDB
 
 ## License
 

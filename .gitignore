@@ -62,3 +62,5 @@ inference_webhook.db
 
 # Keyframe files for video captioning example
 keyframe_*
+
+in-progress/
