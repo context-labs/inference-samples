@@ -35,12 +35,12 @@ Most examples are written in Python, but the concepts can be applied to any lang
 
 #### Example Notebooks
 
+- [Schematron Scrape Companies](examples/schematron-scrape-companies/schematron-scrape-companies.ipynb) - Company data scraping and analysis using Schematron
 - [Webhook Example](examples/webhook-classification/README.md) - A minimalistic API that uses Inference.net to detect Magnus Carlsen in images using webhooks
 - [RAG with ChromaDB, Chonkie, and Paul Graham's Essays](examples/RAG-chroma/RAG-chroma.ipynb) - End-to-end Retrieval-Augmented Generation pipeline using Inference.net, ChromaDB, and Chonkie
 - [ClipTagger-12B Semantic Video Search With Chroma](examples/cliptagger-video-search/cliptagger-video-search.ipynb) - Semantic search and filtering over video frames using ClipTagger-12B and ChromaDB
 - [Video Captioning with VLMs: Generic Model Example](examples/video-captioning/video-captioning.ipynb) <a name="video-captioning.ipynb"></a>
 - [Sentiment Analysis with Structured Outputs](examples/sentiment-analysis/sentiment-analysis.ipynb) <a name="sentiment-analysis.ipynb"></a>
-
 
 #### API Features & Resources
 
